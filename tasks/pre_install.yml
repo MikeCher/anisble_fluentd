@@ -1,0 +1,20 @@
+- name: Install ntp | pre_install
+  package: 
+    name: ntp
+    state: present
+
+- name: Copy ntp config file | pre_install
+  copy:
+    src: "ntp.conf"
+    dest: /etc/
+    mode: "600"
+  notify:
+    - ntp changes apply
+
+- name: Optimize the Network Kernel Parameters| pre_install
+  copy:
+    src: "sysctl.conf"
+    dest: /etc/
+    mode: "600"
+  notify:
+    - network kernel parameters apply

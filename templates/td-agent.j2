@@ -1,0 +1,53 @@
+<source>
+  @type systemd
+  tag  {{ td_agent_config.sevice_name }}.log
+  path /var/log/journal
+  #matches [{ "_SYSTEMD_UNIT": "kubelet.service" }]
+  #matches [{"_SYSTEMD_UNIT": "nginx.service"}]
+  matches [{"unit":"nginx.service"}]
+  read_from_head true
+  <storage>
+    @type local
+    path /var/log/fluentd-journald-kubelet-cursor.json
+ </storage>
+
+  <entry>
+    fields_strip_underscores true
+    fields_lowercase true
+  </entry>
+</source>
+
+
+<source>
+  @type tail
+  path {{ td_agent_config.path_log }}
+  pos_file /var/log/td-agent/{{ td_agent_config.sevice_name }}.access_log.pos
+  <parse>
+    @type {{ td_agent_config.sevice_name }}
+  </parse>
+  tag {{ td_agent_config.sevice_name }}.log
+</source>
+
+<match {{ td_agent_config.sevice_name }}.log>
+  @type s3
+
+  aws_key_id  {{ aws_credentials.aws_access_key }}
+  aws_sec_key {{ aws_credentials.aws_secret_key }}
+  s3_bucket   {{ aws_credentials.aws_s3_bucket }}
+  s3_region   {{ aws_credentials.aws_region }}
+  path        {{ aws_credentials.aws_pathlog }}
+
+  <format>
+        @type {{ td_agent_config.format_log }}
+  </format>
+
+  <buffer>
+    @type file 
+    path {{ td_agent_boofer.path_log }}
+    timekey {{ td_agent_boofer.timekey }}
+    timekey_wait {{ td_agent_boofer.timekey_wait }}
+    chunk_limit_size {{ td_agent_boofer.chunk_limit_size }}
+  </buffer>
+
+time_slice_format %Y%m%d%H
+</match>

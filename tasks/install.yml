@@ -1,0 +1,47 @@
+#  - name: Check if td-agent file exists | install
+#    stat:
+#      path: "/lib/systemd/system/td-agent.service"
+#    register: result
+ 
+#  - name: Install td-agent from Apt Repository | install
+#    shell:
+#      cmd: curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
+#    when: not result.stat.exists   
+---
+- name: Fluentd | Install repo apt key
+  apt_key:
+    url: https://packages.treasuredata.com/GPG-KEY-td-agent
+    state: present
+
+- name: Fluentd | Add repository
+  apt_repository:
+    repo:  deb http://packages.treasuredata.com/4/ubuntu/focal/ focal contrib
+    state: present
+
+- name: Fluentd | Install fluentd
+  apt:
+    update_cache: yes
+    name: "td-agent"
+    state: present
+  notify:
+    - Restart Fluentd
+
+- name: Fluentd | Register plugins list
+  command: "td-agent-gem list"
+  register: plugins_list
+  changed_when: false
+
+- name: Fluentd | Install fluentd plugins
+  command: "td-agent-gem install {{ item }}"
+  with_items: "{{ fluentd_plugins }}"
+  when: not item in plugins_list.stdout
+
+- name: Create td-agent config | install
+  template:
+     src: td-agent.j2
+     dest: "/etc/td-agent/td-agent.conf"
+     mode: "600"
+     owner: td-agent
+     group: td-agent
+  notify:
+     - restart td-agent.service
