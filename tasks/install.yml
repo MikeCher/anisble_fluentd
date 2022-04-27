@@ -1,12 +1,3 @@
-#  - name: Check if td-agent file exists | install
-#    stat:
-#      path: "/lib/systemd/system/td-agent.service"
-#    register: result
- 
-#  - name: Install td-agent from Apt Repository | install
-#    shell:
-#      cmd: curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
-#    when: not result.stat.exists   
 ---
 - name: Fluentd | Install repo apt key
   apt_key:
@@ -23,8 +14,13 @@
     update_cache: yes
     name: "td-agent"
     state: present
-  notify:
-    - Restart Fluentd
+
+- name: Add the user td-agent to systemd-journal group
+  user:
+     name:  td-agent
+     groups: systemd-journal,adm,syslog     
+     append: yes
+  tags: user
 
 - name: Fluentd | Register plugins list
   command: "td-agent-gem list"
@@ -35,13 +31,24 @@
   command: "td-agent-gem install {{ item }}"
   with_items: "{{ fluentd_plugins }}"
   when: not item in plugins_list.stdout
+  notify:
+      - restart td-agent.service
+
+
+- name: Fluentd | Create fluentd directory for side files
+  file:
+    path:  "/var/log/fluentd"
+    owner: "td-agent"
+    group: "td-agent"
+    mode: 0765
+    state: directory
 
 - name: Create td-agent config | install
   template:
-     src: td-agent.j2
-     dest: "/etc/td-agent/td-agent.conf"
-     mode: "600"
-     owner: td-agent
-     group: td-agent
+      src: td-agent.j2
+      dest: "/etc/td-agent/td-agent.conf"
+      mode:  0600
+      owner: td-agent
+      group: td-agent
   notify:
-     - restart td-agent.service
+      - restart td-agent.service

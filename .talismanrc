@@ -1,4 +1,4 @@
 fileignoreconfig:
 - filename: defaults/main.yml
-  checksum: 467551979162d95160b1eaf299478e5c89733c3aa13851df5432220cd44e89fa
+  checksum: ef98276954c9f9b8ff69983c0b456f9496aa1bbe9372a14ba4e7212e701aeb69
 version: "1.0"

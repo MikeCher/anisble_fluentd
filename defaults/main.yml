@@ -1,18 +1,15 @@
----
-aws_credentials:
-  aws_access_key: 
-  aws_secret_key: 
-  aws_s3_bucket:  
-  aws_region:    
-  aws_pathlog:    
-  
-td_agent_config:
-  format_log: json
-  path_log: /var/log/nginx/access.log
-  sevice_name: nginx
+#---
+# aws_credentials:
+#   aws_access_key: 
+#   aws_secret_key: 
+#   aws_s3_bucket:  
+#   aws_region:    
+#   aws_pathlog:    
+#fluent-plugin-systemd -v 1.0.3,fluent-plugin-rewrite-tag-filter
+fluentd_plugins: ["fluent-plugin-rewrite-tag-filter", "fluent-plugin-systemd -v 1.0.3"]
 
-td_agent_boofer:
-    path_log:  /var/log/td-agent/s3
-    timekey: 30  # 1 hour
-    timekey_wait:  1m
-    chunk_limit_size:  256m
+# fluentd_config:
+#   - directive: system
+#     data:
+#       - |
+#         process_name: fluentd

@@ -1,8 +1,8 @@
 - name: restart td-agent.service
-  systemd: 
+  service: 
     state: restarted
     name: td-agent
-
+    
 - name: network kernel parameters apply
   shell:
     cmd: sysctl -p
