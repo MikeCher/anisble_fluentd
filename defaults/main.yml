@@ -1,15 +1,11 @@
-#---
-# aws_credentials:
-#   aws_access_key: 
-#   aws_secret_key: 
-#   aws_s3_bucket:  
-#   aws_region:    
-#   aws_pathlog:    
-#fluent-plugin-systemd -v 1.0.3,fluent-plugin-rewrite-tag-filter
-fluentd_plugins: ["fluent-plugin-rewrite-tag-filter", "fluent-plugin-systemd -v 1.0.3"]
+---
+fluentd_plugins: []
 
-# fluentd_config:
-#   - directive: system
-#     data:
-#       - |
-#         process_name: fluentd
+aws_credentials:
+  aws_access_key:  
+  aws_secret_key: 
+  aws_s3_bucket:   
+  aws_s3_region: 
+
+s3_buffer_timekey:  #5m 
+s3_buffer_timekey_wait: #10m

@@ -1,13 +1,4 @@
 - name: restart td-agent.service
   service: 
     state: restarted
-    name: td-agent
-    
-- name: network kernel parameters apply
-  shell:
-    cmd: sysctl -p
-
-- name: ntp changes apply
-  systemd: 
-    state: restarted
-    name: ntp
+    name: td-agent   

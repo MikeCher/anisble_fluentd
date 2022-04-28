@@ -1,3 +1,4 @@
+                                                                        
 <source>
   @type systemd
   tag values
@@ -6,7 +7,7 @@
   read_from_head true
   <storage>
     @type local
-    path /var/log/fluentd/fluentd-journald-kubelet-cursor.json
+    path /var/log/fluentd/fluentd-journald-cursor.json
   </storage>
   @label @INPUT
 </source>
@@ -17,7 +18,12 @@
     remove_tag_prefix values
    <rule>
      key        CONTAINER_NAME
-     pattern    /(node3)/
+     pattern    /(.*)/
+     tag        app.$1
+   </rule>
+   <rule>
+     key        _COMM        
+     pattern    /(.*)/
      tag        app.$1
    </rule>
    @label @OUTPUT
@@ -26,12 +32,30 @@
 
 <label @OUTPUT>
 <match app.**>
- @type file
- path /var/log/fluentd/${tag}-%Y%m%d%H%M%S
-  <buffer time,tag>
-    timekey 10
-    timekey_use_utc true
+  @type s3
+  aws_key_id   "{{ aws_credentials.aws_access_key }}" 
+  aws_sec_key  "{{ aws_credentials.aws_secret_key }}"
+  s3_bucket    "{{ aws_credentials.aws_s3_bucket  }}"
+  s3_region    "{{ aws_credentials.aws_s3_region  }}"
+
+  path ${tag}-%Y%m%d%H%M%S
+  check_object false
+  s3_object_key_format %{hostname}/%{path}/%{uuid_flush}%{time_slice}_%{index}.%{file_extension}
+ <buffer tag,time>
+    @type file
+    path /var/log/fluentd/${tag}-%Y%m%d%H%M%S
+    timekey 10 # 1 hour partition
     timekey_wait 20
+    chunk_limit_size 256m
   </buffer>
+ time_slice_format %Y%m%d%H%M%S
+
+  <format>
+    @type json
+  </format>
 </match>
 </label>
+
+<system>
+  ignore_same_log_interval 60s
+</system>

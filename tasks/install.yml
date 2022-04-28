@@ -15,11 +15,11 @@
     name: "td-agent"
     state: present
 
-- name: Add the user td-agent to systemd-journal group
+- name: Add the user td-agent to systemd-journal adm,syslog group
   user:
-     name:  td-agent
-     groups: systemd-journal,adm,syslog     
-     append: yes
+    name:  td-agent
+    groups: systemd-journal,adm,syslog
+    append: yes
   tags: user
 
 - name: Fluentd | Register plugins list
@@ -32,8 +32,7 @@
   with_items: "{{ fluentd_plugins }}"
   when: not item in plugins_list.stdout
   notify:
-      - restart td-agent.service
-
+    - restart td-agent.service
 
 - name: Fluentd | Create fluentd directory for side files
   file:
@@ -45,10 +44,10 @@
 
 - name: Create td-agent config | install
   template:
-      src: td-agent.j2
-      dest: "/etc/td-agent/td-agent.conf"
-      mode:  0600
-      owner: td-agent
-      group: td-agent
+    src: td-agent.j2
+    dest: "/etc/td-agent/td-agent.conf"
+    mode:  0765
+    owner: td-agent
+    group: td-agent
   notify:
-      - restart td-agent.service
+    - restart td-agent.service
