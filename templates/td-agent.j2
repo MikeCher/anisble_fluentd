@@ -40,7 +40,7 @@
 
   path ${tag}-%Y%m%d%H%M%S
   check_object false
-  s3_object_key_format %{hostname}/%{path}/%{uuid_flush}%{time_slice}_%{index}.%{file_extension}
+  s3_object_key_format %{Socket.gethostname}/%{path}/%{uuid_flush}%{time_slice}_%{index}.%{file_extension}
  <buffer tag,time>
     @type file
     path /var/log/fluentd/${tag}-%Y%m%d%H%M%S

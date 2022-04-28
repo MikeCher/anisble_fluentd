@@ -46,7 +46,7 @@
   template:
     src: td-agent.j2
     dest: "/etc/td-agent/td-agent.conf"
-    mode:  0765
+    mode:  0600
     owner: td-agent
     group: td-agent
   notify:
